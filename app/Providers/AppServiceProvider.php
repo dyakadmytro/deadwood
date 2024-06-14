@@ -18,10 +18,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TVDataProvider::class, function (Application $app) {
             $configData = config('tv_providers.tvmaze');
             $client = new Client([
-                'base_url' => $configData['url'],
+                'base_uri' => $configData['url'],
                 'timeout'  => 5.0,
             ]);
-
             return new TVmaze($client);
         });
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\TVDataProvider;
 use App\Http\Requests\SearchRequest;
+use App\Services\TVMazeProcessor;
 
 class SearchController extends Controller
 {
@@ -19,7 +20,17 @@ class SearchController extends Controller
          */
         $showsProvider = app()->make(TVDataProvider::class);
         $showsData = $showsProvider->search4Shows($safeQuery);
-        dd($showsData);
-        return response('test');
+        $showsNames = TVMazeProcessor::formatData($showsData);
+        try {
+            $needleShow = collect($showsNames)->firstOrFail(function ($item) use($query) {
+                return strtolower($item) === strtolower($query);
+            });
+        } catch (\Exception $exception) {
+            return response('Show not found', 404);
+        }
+
+        return response(json_encode([
+            'data' => $needleShow
+        ]));
     }
 }
